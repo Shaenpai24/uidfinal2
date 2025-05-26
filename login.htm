@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup/Login</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBlJWklhzP-ys7apK3jHdNydCKiHmxfrJs",
+      authDomain: "signup-37e48.firebaseapp.com",
+      projectId: "signup-37e48",
+      storageBucket: "signup-37e48.firebasestorage.app",
+      messagingSenderId: "578490476844",
+      appId: "1:578490476844:web:1bc06706e2579b833b6489",
+      measurementId: "G-RBYZG1VHKR"
+    };
+
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const analytics = getAnalytics(app);
+
+    
+    window.signUp = async () => {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        alert("Signed up successfully!");
+        window.location.href = "Home.htm";
+      } catch (err) {
+        document.getElementById('error-message').textContent = err.message;
+      }
+    };
+
+    window.logIn = async () => {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        alert("Logged in successfully!");
+        window.location.href = "Home.htm";
+      } catch (err) {
+        document.getElementById('error-message').textContent = err.message;
+      }
+    };
+
+    window.signInWithGoogle = async () => {
+      const provider = new GoogleAuthProvider();
+      
+      try {
+        await signInWithPopup(auth, provider);
+        alert("Google login successful");
+        window.location.href = "index.html";
+      } catch (err) {
+        document.getElementById('error-message').textContent = err.message;
+      }
+    };
+
+    window.signInAnonymously = async () => {
+      try {
+        await signInAnonymously(auth);
+        alert("Guest login successful");
+        window.location.href = "Home.htm";
+      } catch (err) {
+        document.getElementById('error-message').textContent = err.message;
+      }
+    };
+  </script>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Signup / Login</h2>
+    <form id="authForm">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="button" onclick="signUp()">Sign Up</button>
+      <button type="button" onclick="logIn()">Log In</button>
+      <button type="button" onclick="signInWithGoogle()">Login with Google</button>
+      <button type="button" onclick="signInAnonymously()">Continue as Guest</button>
+    </form>
+    <p id="error-message"></p>
+  </div>
+</body>
+</html>

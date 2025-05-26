@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flash Cards - Study Sync</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+        .svg-background-container {
+            position: fixed; /* Stays in place when scrolling */
+            top: 0;
+            left: 0;
+            width: 100vw; /* Full viewport width */
+            height: 100vh; /* Full viewport height */
+            z-index: -1; /* Puts it behind all other content */
+            background-color: #000000; /* Deep space black */
+            overflow: hidden; /* Hide any overflow from stars */
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Star twinkling animation */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 0.2; transform: scale(0.8); }
+        }
+
+        .star {
+            fill: white;
+            animation: twinkle 3s ease-in-out infinite alternate;
+        }
+
+        /* Delay animation for different stars */
+        .star:nth-child(3n) { animation-delay: 0.5s; }
+        .star:nth-child(5n) { animation-delay: 1s; }
+        .star:nth-child(7n) { animation-delay: 1.5s; }
+
+        .celestial-label {
+            font-size: 1.5rem; /* Larger text for labels */
+            fill: #e0e0e0; /* Light grey for labels */
+            text-anchor: middle;
+            font-weight: 600;
+            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5)); /* Subtle glow */
+        }
+
+        .date-time-label {
+            font-size: 1rem;
+            fill: #a0a0a0;
+            text-anchor: end;
+            font-weight: 400;
+        }
+
+        .location-label {
+            font-size: 1rem;
+            fill: #a0a0a0;
+            text-anchor: start;
+            font-weight: 400;
+        }
+
+        /* Responsive adjustments for labels */
+        @media (max-width: 640px) {
+            .celestial-label {
+                font-size: 1rem;
+            }
+            .date-time-label, .location-label {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Example content div to demonstrate overlay */
+        .content-overlay {
+            position: relative; /* Ensure it's above the background */
+            z-index: 1; /* Higher than background */
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+            margin: 5vh auto; /* Center content with vertical margin */
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 700px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px); /* Optional: blur background behind content */
+        }
+        .open {
+          position: absolute;
+          z-index: 1;
+          max-width: 700px;
+          padding: 2rem;
+          background-color: rgba(255, 255, 255, 0.05);
+          color: #ffffff;
+          font-size: 1.2rem;
+          line-height: 1.8;
+          left:60px;
+          top:240px;
+          text-align: center;
+          font-family: 'Fredoka', sans-serif;
+          border-radius: 1.5rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(6px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .open:hover {
+          transform: scale(1.01);
+          box-shadow: 0 6px 25px rgba(255, 255, 255, 0.2);
+        }
+        body{
+          cursor: none;
+        }
+        .custom-cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: rgb(255, 140, 0);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  box-shadow: 0 0 8px white;
+  transition: transform 0.1s ease;
+}
+  </style>
+</head>
+<body>
+  <div class="custom-cursor" id="cursor"></div>
+   <div class="svg-background-container">
+        <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <radialGradient id="skyGradient" cx="50%" cy="50%" r="75%" fx="50%" fy="50%">
+                    <stop offset="0%" stop-color="#000000" />
+                    <stop offset="100%" stop-color="#050510" />
+                </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="800" height="450" fill="url(#skyGradient)" />
+
+            <circle cx="100" cy="80" r="2" class="star" />
+            <circle cx="700" cy="120" r="2" class="star" />
+            <circle cx="50" cy="300" r="2" class="star" />
+            <circle cx="450" cy="50" r="2" class="star" />
+            <circle cx="200" cy="350" r="2" class="star" />
+            <circle cx="600" cy="250" r="2" class="star" />
+            <circle cx="750" cy="380" r="2" class="star" />
+            <circle cx="350" cy="150" r="2" class="star" />
+            <circle cx="150" cy="200" r="2" class="star" />
+            <circle cx="550" cy="320" r="2" class="star" />
+
+            <circle cx="250" cy="100" r="1.5" class="star" />
+            <circle cx="650" cy="60" r="1.5" class="star" />
+            <circle cx="120" cy="400" r="1.5" class="star" />
+            <circle cx="300" cy="250" r="1.5" class="star" />
+            <circle cx="700" cy="20" r="1.5" class="star" />
+            <circle cx="500" cy="400" r="1.5" class="star" />
+            <circle cx="80" cy="150" r="1.5" class="star" />
+            <circle cx="400" cy="300" r="1.5" class="star" />
+            <circle cx="720" cy="280" r="1.5" class="star" />
+            <circle cx="280" cy="380" r="1.5" class="star" />
+
+            <script>
+                const svg = document.querySelector('.svg-background-container svg');
+                for (let i = 0; i < 150; i++) {
+                    const cx = Math.random() * 800;
+                    const cy = Math.random() * 450;
+                    const r = Math.random() * 0.8 + 0.5; // Radius between 0.5 and 1.3
+                    const delay = Math.random() * 3; // Random animation delay
+                    const star = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    star.setAttribute("cx", cx);
+                    star.setAttribute("cy", cy);
+                    star.setAttribute("r", r);
+                    star.setAttribute("class", "star");
+                    star.style.animationDelay = `${delay}s`;
+                    svg.appendChild(star);
+                }
+                 const cursor = document.getElementById("cursor");
+
+document.addEventListener("mousemove", (e) => {
+  cursor.style.left = e.clientX + "px";
+  cursor.style.top = e.clientY + "px";
+});
+
+                document.addEventListener("mousemove", (e) => {
+  const star = document.createElement("div");
+  star.classList.add("trail-star");
+  star.style.left = e.pageX + "px";
+  star.style.top = e.pageY + "px";
+
+  document.body.appendChild(star);
+
+  setTimeout(() => {
+    star.remove();
+  }, 500); // Remove after 0.5s
+});
+            </script>
+
+            
+
+            <line x1="0" y1="440" x2="800" y2="440" stroke="#1a202c" stroke-width="2" />
+        </svg>
+    </div>
+  <header>
+    <img src="logo.png" alt="Study Sync Logo" class="logo">
+    <h1 class="htitle">Study Sync</h1>
+    <div class="sidebar">
+      <a href="index.html"><button>Home</button></a>
+      <a href="flashcards.html"><button>Flash Cards</button></a>
+      <a href="pomodoro.html"><button>Pomodoro</button></a>
+      <a href="quiz.html"><button>Quiz Chat</button></a>
+      <a href="calendar.html"><button>Calendar</button></a>
+    </div>
+  </header>
+  
+
+  <div class="container">
+    <div class="main-content">
+      <!-- Flash Card Form -->
+      <div class="form-container">
+        <input type="text" id="question" placeholder="Enter Question" />
+        <input type="text" id="answer" placeholder="Enter Answer" />
+        <button onclick="addFlashCard()">Add Flash Card</button>
+      </div>
+
+      <!-- Flash Cards Display -->
+      <div id="flashcards" class="cards-container"></div>
+    </div>
+  </div>
+
+  <footer>
+    “Don’t watch the clock; do what it does. Keep going.” – Sam Levenson
+  </footer>
+
+  <script src="flashcards.js"></script>
+</body>
+</html>

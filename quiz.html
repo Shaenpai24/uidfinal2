@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quiz - Study Sync</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            top:200px;
+            cursor: none;
+        }
+
+        .question-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .option {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+
+        .option.selected {
+            background-color: #181820;
+            color: white;
+        }
+
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .quiz-controls button {
+            background-color: #181820;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: none;
+        }
+
+        .quiz-controls button:hover {
+            background-color: #181820;
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 28px;
+            margin: 20px 0;
+            color: #ffffff;
+        }
+
+        .quiz-form {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .quiz-form select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .quiz-form button {
+            background-color: #181820;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .quiz-form button:hover {
+            background-color: #1d1d27;
+        }
+
+        .correct {
+            background-color: #4CAF50 !important;
+            color: #fff !important;
+        }
+        .wrong {
+            background-color: #FF5252 !important;
+            color: #fff !important;
+        }
+        .show-answers .option {
+            cursor: default;
+            pointer-events: none;
+        }
+        .svg-background-container {
+            position: fixed; /* Stays in place when scrolling */
+            top: 0;
+            left: 0;
+            width: 100vw; /* Full viewport width */
+            height: 100vh; /* Full viewport height */
+            z-index: -1; /* Puts it behind all other content */
+            background-color: #000000; /* Deep space black */
+            overflow: hidden; /* Hide any overflow from stars */
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Star twinkling animation */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 0.2; transform: scale(0.8); }
+        }
+
+        .star {
+            fill: white;
+            animation: twinkle 3s ease-in-out infinite alternate;
+        }
+
+        /* Delay animation for different stars */
+        .star:nth-child(3n) { animation-delay: 0.5s; }
+        .star:nth-child(5n) { animation-delay: 1s; }
+        .star:nth-child(7n) { animation-delay: 1.5s; }
+
+        .celestial-label {
+            font-size: 1.5rem; /* Larger text for labels */
+            fill: #e0e0e0; /* Light grey for labels */
+            text-anchor: middle;
+            font-weight: 600;
+            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5)); /* Subtle glow */
+        }
+
+        .date-time-label {
+            font-size: 1rem;
+            fill: #a0a0a0;
+            text-anchor: end;
+            font-weight: 400;
+        }
+
+        .location-label {
+            font-size: 1rem;
+            fill: #a0a0a0;
+            text-anchor: start;
+            font-weight: 400;
+        }
+
+        /* Responsive adjustments for labels */
+        @media (max-width: 640px) {
+            .celestial-label {
+                font-size: 1rem;
+            }
+            .date-time-label, .location-label {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Example content div to demonstrate overlay */
+        .content-overlay {
+            position: relative; /* Ensure it's above the background */
+            z-index: 1; /* Higher than background */
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+            margin: 5vh auto; /* Center content with vertical margin */
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 700px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px); /* Optional: blur background behind content */
+        }
+        .open {
+          position: absolute;
+          z-index: 1;
+          max-width: 700px;
+          padding: 2rem;
+          background-color: rgba(255, 255, 255, 0.05);
+          color: #ffffff;
+          font-size: 1.2rem;
+          line-height: 1.8;
+          left:60px;
+          top:240px;
+          text-align: center;
+          font-family: 'Fredoka', sans-serif;
+          border-radius: 1.5rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(6px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .open:hover {
+          transform: scale(1.01);
+          box-shadow: 0 6px 25px rgba(255, 255, 255, 0.2);
+        }
+        /* Hide the default cursor */
+body {
+  cursor: none;
+}
+
+.custom-cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: rgb(255, 140, 0);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  box-shadow: 0 0 8px white;
+  transition: transform 0.1s ease;
+}
+
+  </style>
+</head>
+<body>
+   <div class="custom-cursor" id="cursor"></div>
+   <div class="svg-background-container">
+        <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <radialGradient id="skyGradient" cx="50%" cy="50%" r="75%" fx="50%" fy="50%">
+                    <stop offset="0%" stop-color="#000000" />
+                    <stop offset="100%" stop-color="#050510" />
+                </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="800" height="450" fill="url(#skyGradient)" />
+
+            <circle cx="100" cy="80" r="2" class="star" />
+            <circle cx="700" cy="120" r="2" class="star" />
+            <circle cx="50" cy="300" r="2" class="star" />
+            <circle cx="450" cy="50" r="2" class="star" />
+            <circle cx="200" cy="350" r="2" class="star" />
+            <circle cx="600" cy="250" r="2" class="star" />
+            <circle cx="750" cy="380" r="2" class="star" />
+            <circle cx="350" cy="150" r="2" class="star" />
+            <circle cx="150" cy="200" r="2" class="star" />
+            <circle cx="550" cy="320" r="2" class="star" />
+
+            <circle cx="250" cy="100" r="1.5" class="star" />
+            <circle cx="650" cy="60" r="1.5" class="star" />
+            <circle cx="120" cy="400" r="1.5" class="star" />
+            <circle cx="300" cy="250" r="1.5" class="star" />
+            <circle cx="700" cy="20" r="1.5" class="star" />
+            <circle cx="500" cy="400" r="1.5" class="star" />
+            <circle cx="80" cy="150" r="1.5" class="star" />
+            <circle cx="400" cy="300" r="1.5" class="star" />
+            <circle cx="720" cy="280" r="1.5" class="star" />
+            <circle cx="280" cy="380" r="1.5" class="star" />
+
+            <script>
+                const svg = document.querySelector('.svg-background-container svg');
+                for (let i = 0; i < 150; i++) {
+                    const cx = Math.random() * 800;
+                    const cy = Math.random() * 450;
+                    const r = Math.random() * 0.8 + 0.5; // Radius between 0.5 and 1.3
+                    const delay = Math.random() * 3; // Random animation delay
+                    const star = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    star.setAttribute("cx", cx);
+                    star.setAttribute("cy", cy);
+                    star.setAttribute("r", r);
+                    star.setAttribute("class", "star");
+                    star.style.animationDelay = `${delay}s`;
+                    svg.appendChild(star);
+                }
+                const cursor = document.getElementById("cursor");
+
+document.addEventListener("mousemove", (e) => {
+  cursor.style.left = e.clientX + "px";
+  cursor.style.top = e.clientY + "px";
+});
+
+                document.addEventListener("mousemove", (e) => {
+  const star = document.createElement("div");
+  star.classList.add("trail-star");
+  star.style.left = e.pageX + "px";
+  star.style.top = e.pageY + "px";
+
+  document.body.appendChild(star);
+
+  setTimeout(() => {
+    star.remove();
+  }, 500); // Remove after 0.5s
+});
+
+            </script>
+
+            
+
+            <line x1="0" y1="440" x2="800" y2="440" stroke="#1a202c" stroke-width="2" />
+
+            
+
+        </svg>
+    </div>
+    <header>
+        <img src="logo.png" alt="Study Sync Logo" class="logo">
+        <h1 class="htitle">Study Sync</h1>
+        <div class="sidebar">
+            <a href="index.html"><button>Home</button></a>
+            <a href="flashcards.html"><button>Flash Cards</button></a>
+            <a href="pomodoro.html"><button>Pomodoro</button></a>
+            <a href="quiz.html"><button>Quiz</button></a>
+            <a href="calendar.html"><button>Calendar</button></a>
+        </div>
+
+    </header>
+
+    <div class="container">
+        
+        <div class="main-content">
+            <div class="quiz-container">
+                <div class="quiz-form" id="quiz-form">
+                    <h2>Select Quiz Category</h2>
+                    <select id="category">
+                        <option value="">Select a category</option>
+                        <option value="maths">Maths</option>
+                        <option value="physics">Physics</option>
+                        <option value="chemistry">Chemistry</option>
+                        <option value="biology">Biology</option>
+                        <option value="history">History</option>
+                        <option value="art">Art</option>
+                    </select>
+                    <label for="num-questions">Number of Questions (1-50):</label>
+                    <input type="number" id="num-questions" min="1" max="50" value="10">
+                    <button onclick="startQuiz()">Start Quiz</button>
+                </div>
+
+                <div id="quiz-content" style="display: none;">
+                    <div id="score-display" class="score-display"></div>
+                    <div id="question-container" class="question-container">
+                        <h2 id="question-text">Loading questions...</h2>
+                        <div id="options" class="options"></div>
+                    </div>
+                    <div class="quiz-controls">
+                        <button onclick="previousQuestion()">Previous</button>
+                        <button onclick="submitQuiz()">Submit Quiz</button>
+                        <button onclick="nextQuestion()">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        "The key to success is to focus on goals, not obstacles."
+    </footer>
+
+    <script>
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = [];
+        let questions = [];
+
+        const questionBank = {
+            maths: [
+                { question: "What is 2 + 3?", options: ["4", "5", "6", "7"], correctAnswer: 1 },
+                { question: "What is 10 - 4?", options: ["6", "7", "8", "9"], correctAnswer: 0 },
+                { question: "What is 3 × 4?", options: ["11", "12", "13", "14"], correctAnswer: 1 },
+                { question: "What is 8 ÷ 2?", options: ["2", "3", "4", "5"], correctAnswer: 2 },
+                { question: "What is 6 + 7?", options: ["12", "13", "14", "15"], correctAnswer: 1 },
+                { question: "What is 15 - 5?", options: ["10", "9", "8", "7"], correctAnswer: 0 },
+                { question: "What is 5 × 5?", options: ["20", "25", "30", "35"], correctAnswer: 1 },
+                { question: "What is 12 ÷ 4?", options: ["2", "3", "4", "5"], correctAnswer: 1 },
+                { question: "What is 9 + 6?", options: ["14", "15", "16", "17"], correctAnswer: 1 },
+                { question: "What is 18 - 3?", options: ["13", "14", "15", "16"], correctAnswer: 2 },
+                { question: "What is 3²?", options: ["6", "7", "8", "9"], correctAnswer: 3 },
+                { question: "What is 4³?", options: ["64", "16", "32", "20"], correctAnswer: 2 },
+                { question: "What is the square root of 49?", options: ["6", "7", "8", "9"], correctAnswer: 1 },
+                { question: "What is 2 × (3 + 5)?", options: ["12", "14", "16", "18"], correctAnswer: 0 },
+                { question: "What is 100 ÷ 5?", options: ["15", "20", "25", "30"], correctAnswer: 2 },
+                { question: "What is 10²?", options: ["100", "110", "90", "120"], correctAnswer: 0 },
+                { question: "What is 3/5 + 2/5?", options: ["1", "2", "3", "4"], correctAnswer: 0 },
+                { question: "What is 0.75 as a fraction?", options: ["1/4", "1/2", "3/4", "2/3"], correctAnswer: 2 },
+                { question: "What is 25% of 200?", options: ["25", "50", "75", "100"], correctAnswer: 1 },
+                { question: "What is 0.2 × 100?", options: ["10", "15", "20", "25"], correctAnswer: 2 },
+                { question: "Solve: 3x = 12", options: ["2", "3", "4", "5"], correctAnswer: 2 },
+                { question: "What is the next prime after 17?", options: ["18", "19", "20", "21"], correctAnswer: 1 },
+                { question: "Simplify: (2 + 3) × 4", options: ["20", "22", "24", "26"], correctAnswer: 0 },
+                { question: "Solve: x/4 = 5", options: ["15", "18", "20", "22"], correctAnswer: 2 },
+                { question: "What is the cube of 3?", options: ["9", "18", "27", "36"], correctAnswer: 2 },
+                { question: "What is 12.5% of 80?", options: ["8", "10", "12", "14"], correctAnswer: 0 },
+                { question: "What is 0.1 + 0.2?", options: ["0.2", "0.3", "0.4", "0.5"], correctAnswer: 1 },
+                { question: "Find the area of a square with side 6.", options: ["36", "30", "24", "12"], correctAnswer: 0 },
+                { question: "What is 3/4 × 8?", options: ["5", "6", "7", "8"], correctAnswer: 1 },
+                { question: "What is the perimeter of a rectangle with length 5 and width 3?", options: ["14", "16", "18", "20"], correctAnswer: 0 },
+                { question: "Convert 0.2 to a percentage.", options: ["2%", "20%", "200%", "0.2%"], correctAnswer: 1 },
+                { question: "Solve: 2(x + 3) = 10", options: ["1", "2", "3", "4"], correctAnswer: 2 },
+                { question: "What is the HCF of 12 and 18?", options: ["3", "4", "6", "9"], correctAnswer: 2 },
+                { question: "What is the LCM of 4 and 5?", options: ["10", "15", "20", "25"], correctAnswer: 2 },
+                { question: "What is the median of [3, 5, 7]?", options: ["3", "5", "7", "9"], correctAnswer: 1 },
+                { question: "If x = 2, what is the value of x² + 3x + 1?", options: ["10", "11", "12", "13"], correctAnswer: 2 },
+                { question: "Solve: 5x - 2 = 18", options: ["2", "4", "5", "6"], correctAnswer: 3 },
+                { question: "What is the factorial of 4?", options: ["12", "24", "36", "48"], correctAnswer: 1 },
+                { question: "What is 2³ × 3²?", options: ["24", "36", "48", "64"], correctAnswer: 0 },
+                { question: "What is 15% of 360?", options: ["45", "50", "54", "60"], correctAnswer: 2 },
+                { question: "What is the probability of getting a 3 on a die?", options: ["1/3", "1/6", "1/5", "1/4"], correctAnswer: 1 },
+                { question: "What is the mode in [2, 3, 3, 4, 5]?", options: ["2", "3", "4", "5"], correctAnswer: 1 },
+                { question: "Simplify: (x + 2)(x - 2)", options: ["x² - 4", "x² + 4", "x² - 2", "x² + 2"], correctAnswer: 0 },
+                { question: "Find the value of |−7|.", options: ["-7", "0", "7", "14"], correctAnswer: 2 },
+                { question: "What is the derivative of x²?", options: ["x", "2x", "x²", "2x²"], correctAnswer: 1 },
+                { question: "Integrate: ∫2x dx", options: ["x²", "2x²", "x² + C", "2x² + C"], correctAnswer: 2 },
+                { question: "Find the angle in a triangle with angles 60° and 90°.", options: ["30°", "45°", "60°", "90°"], correctAnswer: 0 },
+                { question: "If f(x) = x², what is f(3)?", options: ["6", "8", "9", "12"], correctAnswer: 2 },
+                { question: "What is the standard deviation of [2, 4, 4, 4, 5, 5, 7, 9]?", options: ["1", "2", "2.5", "3"], correctAnswer: 1 },
+                { question: "If sin(θ) = 0.5, what is θ?", options: ["30°", "45°", "60°", "90°"], correctAnswer: 0 },
+                { question: "What is the slope of the line y = 2x + 3?", options: ["2", "3", "-2", "-3"], correctAnswer: 0 },
+                { question: "Find the sum of angles in a hexagon.", options: ["540°", "720°", "900°", "1080°"], correctAnswer: 1 },
+                { question: "Solve: x² - 4x + 4 = 0", options: ["0", "2", "4", "All of the above"], correctAnswer: 1 }
+            ],
+            physics: [
+                { question: "What is the SI unit of force?", options: ["Pascal", "Joule", "Newton", "Watt"], correctAnswer: 2 },
+                { question: "What does a speedometer measure?", options: ["Speed", "Distance", "Force", "Energy"], correctAnswer: 0 },
+                { question: "What is the acceleration due to gravity on Earth?", options: ["8.9 m/s²", "9.8 m/s²", "10.2 m/s²", "9.2 m/s²"], correctAnswer: 1 },
+                { question: "Which instrument is used to measure temperature?", options: ["Barometer", "Thermometer", "Manometer", "Speedometer"], correctAnswer: 1 },
+                { question: "What is the SI unit of energy?", options: ["Watt", "Joule", "Newton", "Kelvin"], correctAnswer: 1 },
+                { question: "What type of lens is used to correct myopia?", options: ["Convex", "Concave", "Bifocal", "Plano"], correctAnswer: 1 },
+                { question: "Sound travels fastest in which medium?", options: ["Air", "Water", "Steel", "Vacuum"], correctAnswer: 2 },
+                { question: "What is the speed of light in vacuum?", options: ["3×10⁶ m/s", "3×10⁸ m/s", "3×10⁷ m/s", "3×10⁵ m/s"], correctAnswer: 1 },
+                { question: "Which force pulls objects towards Earth?", options: ["Magnetic", "Gravitational", "Frictional", "Nuclear"], correctAnswer: 1 },
+                { question: "What kind of quantity is velocity?", options: ["Scalar", "Vector", "Both", "None"], correctAnswer: 1 },
+                { question: "Who gave the three laws of motion?", options: ["Einstein", "Newton", "Galileo", "Faraday"], correctAnswer: 1 },
+                { question: "What is work done when force is applied perpendicular to displacement?", options: ["Maximum", "Minimum", "Zero", "Infinite"], correctAnswer: 2 },
+                { question: "Which energy transformation occurs in a fan?", options: ["Mechanical to Electrical", "Electrical to Mechanical", "Chemical to Mechanical", "Thermal to Mechanical"], correctAnswer: 1 },
+                { question: "What is inertia?", options: ["Force", "Change in speed", "Resistance to motion change", "Mass × acceleration"], correctAnswer: 2 },
+                { question: "Which has more inertia: car or bicycle?", options: ["Car", "Bicycle", "Both same", "None"], correctAnswer: 0 },
+                { question: "What is the unit of pressure?", options: ["Joule", "Watt", "Pascal", "Newton"], correctAnswer: 2 },
+                { question: "What causes tides in oceans?", options: ["Earthquakes", "Wind", "Moon's gravity", "Sunlight"], correctAnswer: 2 },
+                { question: "Which mirror is used in vehicles as rear-view mirror?", options: ["Convex", "Concave", "Plane", "Parabolic"], correctAnswer: 0 },
+                { question: "What color of light has the shortest wavelength?", options: ["Red", "Green", "Blue", "Violet"], correctAnswer: 3 },
+                { question: "What is the frequency of AC in India?", options: ["50 Hz", "60 Hz", "70 Hz", "100 Hz"], correctAnswer: 0 },
+                { question: "Which device converts sound to electrical signals?", options: ["Speaker", "Microphone", "Amplifier", "Antenna"], correctAnswer: 1 },
+                { question: "Which law states that current is directly proportional to voltage?", options: ["Newton's Law", "Ohm's Law", "Hooke's Law", "Boyle's Law"], correctAnswer: 1 },
+                { question: "What is the resistance of an ideal conductor?", options: ["0", "1", "Infinity", "Depends on material"], correctAnswer: 0 },
+                { question: "Which electromagnetic wave has the highest frequency?", options: ["Infrared", "UV", "X-rays", "Gamma rays"], correctAnswer: 3 },
+                { question: "What is the formula for power in terms of work and time?", options: ["P = W×t", "P = W/t", "P = t/W", "P = W²/t"], correctAnswer: 1 },
+                { question: "How many Newtons in 1 kgf (kilogram-force)?", options: ["9.8", "1", "0.98", "10"], correctAnswer: 0 },
+                { question: "What is escape velocity from Earth?", options: ["11.2 km/s", "9.8 km/s", "12.2 km/s", "10.8 km/s"], correctAnswer: 0 },
+                { question: "What is the primary cause of seasons?", options: ["Earth's rotation", "Earth's revolution", "Sunspots", "Moon phases"], correctAnswer: 1 },
+                { question: "Which quantity is conserved in all types of collisions?", options: ["Kinetic Energy", "Potential Energy", "Momentum", "Speed"], correctAnswer: 2 },
+                { question: "Which gas is used in fluorescent bulbs?", options: ["Oxygen", "Nitrogen", "Mercury vapor", "Hydrogen"], correctAnswer: 2 },
+                { question: "Which law explains buoyant force?", options: ["Pascal's Law", "Archimedes' Principle", "Newton's Law", "Bernoulli's Principle"], correctAnswer: 1 },
+                { question: "What is the universal gravitational constant (G)?", options: ["6.67×10⁻¹¹ Nm²/kg²", "9.8 m/s²", "6.67×10⁻⁹ Nm²/kg²", "1 Nm²/kg²"], correctAnswer: 0 },
+                { question: "Which particle has negative charge?", options: ["Proton", "Electron", "Neutron", "Positron"], correctAnswer: 1 },
+                { question: "What is displacement?", options: ["Distance in any direction", "Shortest path from start to end", "Area", "Mass"], correctAnswer: 1 },
+                { question: "What is kinetic energy?", options: ["Energy due to position", "Energy due to motion", "Thermal energy", "Stored energy"], correctAnswer: 1 },
+                { question: "Which instrument measures current?", options: ["Voltmeter", "Ammeter", "Ohmmeter", "Thermometer"], correctAnswer: 1 },
+                { question: "In a vacuum, which force is absent?", options: ["Friction", "Gravity", "Magnetism", "Inertia"], correctAnswer: 0 },
+                { question: "Who discovered electromagnetic induction?", options: ["Newton", "Faraday", "Galileo", "Ohm"], correctAnswer: 1 },
+                { question: "Which wave doesn't need a medium?", options: ["Sound", "Light", "Water", "Seismic"], correctAnswer: 1 },
+                { question: "What does the slope of a velocity-time graph give?", options: ["Displacement", "Acceleration", "Speed", "Distance"], correctAnswer: 1 },
+                { question: "What is centripetal force?", options: ["Force pulling outwards", "Force pushing inwards", "Frictional force", "Gravity"], correctAnswer: 1 },
+                { question: "What causes an echo?", options: ["Refraction", "Reflection", "Diffraction", "Absorption"], correctAnswer: 1 },
+                { question: "What happens to resistance if wire length doubles?", options: ["Doubles", "Halves", "Stays same", "Triples"], correctAnswer: 0 },
+                { question: "What is the work done when displacement is zero?", options: ["Max", "Min", "Infinite", "Zero"], correctAnswer: 3 },
+                { question: "What is the formula of pressure in fluids?", options: ["P = hρg", "P = F/A", "P = mg", "P = Vt"], correctAnswer: 0 },
+                { question: "What does a transformer do?", options: ["Converts DC to AC", "Changes voltage", "Stores charge", "Increases resistance"], correctAnswer: 1 },
+                { question: "What is the SI unit of electric potential?", options: ["Ampere", "Volt", "Ohm", "Watt"], correctAnswer: 1 },
+                { question: "What is the function of a fuse in circuits?", options: ["Increase voltage", "Measure current", "Prevent overheating", "Supply energy"], correctAnswer: 2 },
+                { question: "Which law relates voltage, current and resistance?", options: ["Ohm's Law", "Boyle's Law", "Hooke's Law", "Lenz's Law"], correctAnswer: 0 },
+                { question: "If two objects collide and stick together, the collision is:", options: ["Elastic", "Inelastic", "Explosive", "Nuclear"], correctAnswer: 1 },
+                { question: "Which energy is associated with a stretched spring?", options: ["Kinetic", "Potential", "Heat", "Nuclear"], correctAnswer: 1 },
+                { question: "What is terminal velocity?", options: ["Min speed", "Max falling speed", "Average speed", "Constant rotation speed"], correctAnswer: 1 },
+                { question: "Who discovered the photoelectric effect?", options: ["Einstein", "Newton", "Bohr", "Maxwell"], correctAnswer: 0 }
+            ],
+            chemistry: [
+                { question: "What is the chemical formula of water?", options: ["H₂O", "CO₂", "NaCl", "O₂"], correctAnswer: 0 },
+                { question: "Which gas do plants release during photosynthesis?", options: ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"], correctAnswer: 1 },
+                { question: "What is the pH of a neutral substance?", options: ["0", "14", "7", "1"], correctAnswer: 2 },
+                { question: "Which acid is found in lemons?", options: ["Acetic acid", "Citric acid", "Sulfuric acid", "Hydrochloric acid"], correctAnswer: 1 },
+                { question: "Which element is used in thermometers?", options: ["Iron", "Lead", "Mercury", "Zinc"], correctAnswer: 2 },
+                { question: "Which metal is the lightest?", options: ["Iron", "Aluminum", "Magnesium", "Lithium"], correctAnswer: 3 },
+                { question: "What is the common name of NaCl?", options: ["Sugar", "Baking soda", "Salt", "Lime"], correctAnswer: 2 },
+                { question: "Which gas is known as laughing gas?", options: ["O₂", "CO₂", "N₂O", "CH₄"], correctAnswer: 2 },
+                { question: "What is the atomic number of carbon?", options: ["4", "6", "8", "12"], correctAnswer: 1 },
+                { question: "Which element is essential for combustion?", options: ["Hydrogen", "Oxygen", "Nitrogen", "Carbon"], correctAnswer: 1 },
+                { question: "Which acid is present in the stomach?", options: ["Sulfuric acid", "Acetic acid", "Hydrochloric acid", "Nitric acid"], correctAnswer: 2 },
+                { question: "Which is a noble gas?", options: ["Nitrogen", "Chlorine", "Helium", "Oxygen"], correctAnswer: 2 },
+                { question: "Which metal is liquid at room temperature?", options: ["Iron", "Copper", "Mercury", "Sodium"], correctAnswer: 2 },
+                { question: "Which non-metal is a good conductor of electricity?", options: ["Sulfur", "Phosphorus", "Carbon (graphite)", "Chlorine"], correctAnswer: 2 },
+                { question: "What is the chemical symbol for gold?", options: ["Ag", "Au", "Gd", "Go"], correctAnswer: 1 },
+                { question: "Which gas turns limewater milky?", options: ["CO₂", "O₂", "N₂", "H₂"], correctAnswer: 0 },
+                { question: "What is formed when an acid reacts with a base?", options: ["Salt and water", "Water only", "Salt only", "Hydrogen gas"], correctAnswer: 0 },
+                { question: "Which metal catches fire when exposed to water?", options: ["Iron", "Copper", "Sodium", "Aluminum"], correctAnswer: 2 },
+                { question: "Which chemical is used for water purification?", options: ["Bleaching powder", "Baking soda", "Vinegar", "Alcohol"], correctAnswer: 0 },
+                { question: "What is the universal solvent?", options: ["Alcohol", "Water", "Acetone", "Ether"], correctAnswer: 1 },
+                { question: "Which element is common in all acids?", options: ["Oxygen", "Hydrogen", "Nitrogen", "Carbon"], correctAnswer: 1 },
+                { question: "What type of reaction is burning of a candle?", options: ["Physical", "Chemical", "Nuclear", "Neutral"], correctAnswer: 1 },
+                { question: "What is an alloy of copper and zinc called?", options: ["Steel", "Bronze", "Brass", "Solder"], correctAnswer: 2 },
+                { question: "Which vitamin is synthesized in sunlight?", options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"], correctAnswer: 3 },
+                { question: "Which part of the atom has a negative charge?", options: ["Proton", "Neutron", "Electron", "Nucleus"], correctAnswer: 2 },
+                { question: "Which type of bond shares electrons?", options: ["Ionic", "Covalent", "Metallic", "Hydrogen"], correctAnswer: 1 },
+                { question: "Which substance is used in making matchsticks?", options: ["Sulfur", "Phosphorus", "Potassium", "Magnesium"], correctAnswer: 1 },
+                { question: "Which element is stored in kerosene?", options: ["Iron", "Calcium", "Phosphorus", "Sodium"], correctAnswer: 3 },
+                { question: "Which of these is a base?", options: ["Vinegar", "Lemon juice", "Soap", "Sugar"], correctAnswer: 2 },
+                { question: "Which gas is used in fire extinguishers?", options: ["Oxygen", "Hydrogen", "Carbon dioxide", "Nitrogen"], correctAnswer: 2 },
+                { question: "Which type of reaction is Fe + CuSO₄ → FeSO₄ + Cu?", options: ["Combination", "Displacement", "Neutralization", "Decomposition"], correctAnswer: 1 },
+                { question: "What is the atomic mass of oxygen?", options: ["8", "16", "18", "32"], correctAnswer: 1 },
+                { question: "Which of the following is a metalloid?", options: ["Aluminum", "Boron", "Chlorine", "Sulfur"], correctAnswer: 1 },
+                { question: "Which gas is responsible for acid rain?", options: ["O₂", "CO", "SO₂", "H₂"], correctAnswer: 2 },
+                { question: "Which of the following is not an acid?", options: ["HCl", "NaOH", "H₂SO₄", "HNO₃"], correctAnswer: 1 },
+                { question: "What is the valency of carbon?", options: ["2", "3", "4", "5"], correctAnswer: 2 },
+                { question: "Which metal is used for galvanization?", options: ["Copper", "Zinc", "Iron", "Aluminum"], correctAnswer: 1 },
+                { question: "Which indicator turns red in acid?", options: ["Phenolphthalein", "Methyl orange", "Litmus", "Turmeric"], correctAnswer: 2 },
+                { question: "Which of the following is an endothermic reaction?", options: ["Combustion", "Respiration", "Photosynthesis", "Neutralization"], correctAnswer: 2 },
+                { question: "What is formed when metal reacts with acid?", options: ["Salt and hydrogen gas", "Salt and oxygen", "Hydrogen and water", "Base and water"], correctAnswer: 0 },
+                { question: "Which gas is evolved during electrolysis of water?", options: ["Hydrogen", "Oxygen", "Both H₂ and O₂", "Nitrogen"], correctAnswer: 2 },
+                { question: "Which particle has the least mass?", options: ["Proton", "Electron", "Neutron", "Nucleus"], correctAnswer: 1 },
+                { question: "What happens in a redox reaction?", options: ["Only reduction", "Only oxidation", "Both oxidation and reduction", "No change"], correctAnswer: 2 },
+                { question: "Which organic compound is the main component of vinegar?", options: ["Citric acid", "Acetic acid", "Formic acid", "Tartaric acid"], correctAnswer: 1 },
+                { question: "What is a polymer?", options: ["Simple molecule", "Mixture", "Long chain of repeating units", "Acid"], correctAnswer: 2 },
+                { question: "Which element has the highest electronegativity?", options: ["Oxygen", "Fluorine", "Chlorine", "Nitrogen"], correctAnswer: 1 },
+                { question: "What is the color of copper sulfate solution?", options: ["Red", "Blue", "Green", "Yellow"], correctAnswer: 1 },
+                { question: "What is the full form of PVC?", options: ["Polyvinyl chloride", "Polyvinyl carbide", "Polyvinyl cyanide", "Polyvinyl carbon"], correctAnswer: 0 },
+                { question: "Which process separates components of crude oil?", options: ["Distillation", "Filtration", "Chromatography", "Evaporation"], correctAnswer: 0 },
+                { question: "Which acid is used in car batteries?", options: ["Hydrochloric", "Sulfuric", "Nitric", "Acetic"], correctAnswer: 1 },
+                { question: "Which chemical is responsible for the pungent smell of onions?", options: ["Sulfur compounds", "Nitrogen oxides", "Methane", "Alcohol"], correctAnswer: 0 },
+                { question: "Which gas is evolved when baking soda is heated?", options: ["O₂", "CO₂", "H₂", "NO₂"], correctAnswer: 1 },
+                { question: "Which indicator turns pink in a base?", options: ["Litmus", "Methyl orange", "Phenolphthalein", "Turmeric"], correctAnswer: 2 }
+            ],
+            biology: [
+                { question: "What is the basic unit of life?", options: ["Atom", "Tissue", "Organ", "Cell"], correctAnswer: 3 },
+                { question: "Which organ pumps blood in the human body?", options: ["Lungs", "Liver", "Heart", "Kidney"], correctAnswer: 2 },
+                { question: "Which part of the plant conducts photosynthesis?", options: ["Roots", "Stem", "Leaves", "Flowers"], correctAnswer: 2 },
+                { question: "Which gas is taken in during photosynthesis?", options: ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"], correctAnswer: 1 },
+                { question: "What is the powerhouse of the cell?", options: ["Nucleus", "Mitochondria", "Ribosome", "Chloroplast"], correctAnswer: 1 },
+                { question: "How many chambers does a human heart have?", options: ["2", "3", "4", "5"], correctAnswer: 2 },
+                { question: "Which blood cells fight infections?", options: ["RBC", "WBC", "Platelets", "Plasma"], correctAnswer: 1 },
+                { question: "What is the process of breathing out called?", options: ["Inhalation", "Exhalation", "Respiration", "Inspiration"], correctAnswer: 1 },
+                { question: "Which system controls all body activities?", options: ["Circulatory", "Digestive", "Nervous", "Respiratory"], correctAnswer: 2 },
+                { question: "What is the main function of the roots?", options: ["Photosynthesis", "Support and absorb water", "Reproduction", "Respiration"], correctAnswer: 1 },
+                { question: "Which part of the brain controls balance?", options: ["Cerebrum", "Cerebellum", "Medulla", "Pons"], correctAnswer: 1 },
+                { question: "What pigment gives plants their green color?", options: ["Melanin", "Chlorophyll", "Hemoglobin", "Carotene"], correctAnswer: 1 },
+                { question: "Which organ helps in filtering blood?", options: ["Liver", "Lung", "Kidney", "Heart"], correctAnswer: 2 },
+                { question: "What is the function of hemoglobin?", options: ["Digest food", "Carry oxygen", "Fight germs", "Store energy"], correctAnswer: 1 },
+                { question: "What is the largest organ in the human body?", options: ["Heart", "Skin", "Liver", "Lungs"], correctAnswer: 1 },
+                { question: "Which sense organ helps us see?", options: ["Ears", "Nose", "Skin", "Eyes"], correctAnswer: 3 },
+                { question: "What is the human body's framework called?", options: ["Muscles", "Skeleton", "Organs", "Tissues"], correctAnswer: 1 },
+                { question: "Which blood group is a universal donor?", options: ["A", "B", "AB", "O"], correctAnswer: 3 },
+                { question: "Where does digestion begin?", options: ["Stomach", "Mouth", "Small intestine", "Liver"], correctAnswer: 1 },
+                { question: "Which vitamin is made in the skin when exposed to sunlight?", options: ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin B12"], correctAnswer: 2 },
+                { question: "Which gland produces insulin?", options: ["Liver", "Pancreas", "Thyroid", "Adrenal"], correctAnswer: 1 },
+                { question: "Which organ stores bile?", options: ["Liver", "Gall bladder", "Pancreas", "Stomach"], correctAnswer: 1 },
+                { question: "What type of blood vessels carry blood away from the heart?", options: ["Veins", "Arteries", "Capillaries", "Nerves"], correctAnswer: 1 },
+                { question: "Which part of the cell contains genetic material?", options: ["Mitochondria", "Cytoplasm", "Ribosomes", "Nucleus"], correctAnswer: 3 },
+                { question: "How many pairs of chromosomes do humans have?", options: ["22", "23", "24", "46"], correctAnswer: 1 },
+                { question: "Which organ helps in breathing?", options: ["Liver", "Lung", "Stomach", "Kidney"], correctAnswer: 1 },
+                { question: "Which plant part becomes the fruit?", options: ["Root", "Stem", "Flower", "Leaf"], correctAnswer: 2 },
+                { question: "Which disease is caused by a virus?", options: ["Malaria", "Typhoid", "AIDS", "Scurvy"], correctAnswer: 2 },
+                { question: "Which blood cells carry oxygen?", options: ["WBC", "RBC", "Platelets", "Plasma"], correctAnswer: 1 },
+                { question: "How many bones are there in the adult human body?", options: ["200", "206", "210", "220"], correctAnswer: 1 },
+                { question: "What is the term for animals that eat both plants and meat?", options: ["Herbivores", "Carnivores", "Omnivores", "Detritivores"], correctAnswer: 2 },
+                { question: "Which vitamin is essential for blood clotting?", options: ["Vitamin A", "Vitamin C", "Vitamin K", "Vitamin D"], correctAnswer: 2 },
+                { question: "Which cell organelle is involved in protein synthesis?", options: ["Nucleus", "Ribosome", "Mitochondria", "Golgi body"], correctAnswer: 1 },
+                { question: "What is the function of platelets?", options: ["Transport oxygen", "Fight infections", "Clot blood", "Store nutrients"], correctAnswer: 2 },
+                { question: "Which type of joint is found in the shoulder?", options: ["Hinge joint", "Fixed joint", "Ball and socket joint", "Pivot joint"], correctAnswer: 2 },
+                { question: "What is the term for plant movement in response to light?", options: ["Hydrotropism", "Phototropism", "Thigmotropism", "Geotropism"], correctAnswer: 1 },
+                { question: "What type of reproduction involves only one parent?", options: ["Sexual", "Asexual", "Binary", "Fusion"], correctAnswer: 1 },
+                { question: "Which kingdom do bacteria belong to?", options: ["Fungi", "Plantae", "Protista", "Monera"], correctAnswer: 3 },
+                { question: "What is the function of xylem in plants?", options: ["Transport food", "Transport water", "Photosynthesis", "Storage"], correctAnswer: 1 },
+                { question: "Which part of the neuron receives signals?", options: ["Axon", "Dendrites", "Nucleus", "Synapse"], correctAnswer: 1 },
+                { question: "Which hormone regulates blood sugar levels?", options: ["Adrenaline", "Insulin", "Thyroxine", "Melatonin"], correctAnswer: 1 },
+                { question: "Which part of the eye controls the amount of light entering?", options: ["Cornea", "Retina", "Lens", "Iris"], correctAnswer: 3 },
+                { question: "Which cell organelle contains digestive enzymes?", options: ["Nucleus", "Mitochondria", "Lysosome", "Chloroplast"], correctAnswer: 2 },
+                { question: "What is the process of cell division called?", options: ["Meiosis", "Mitosis", "Fission", "Fusion"], correctAnswer: 1 },
+                { question: "Which disease is caused by lack of iodine?", options: ["Scurvy", "Rickets", "Goitre", "Anemia"], correctAnswer: 2 },
+                { question: "Which structure connects muscles to bones?", options: ["Ligaments", "Cartilage", "Tendons", "Joints"], correctAnswer: 2 },
+                { question: "Which plant tissue transports food?", options: ["Xylem", "Phloem", "Parenchyma", "Collenchyma"], correctAnswer: 1 },
+                { question: "Which organ produces bile?", options: ["Stomach", "Liver", "Pancreas", "Gall bladder"], correctAnswer: 1 },
+                { question: "Which blood component helps in clotting?", options: ["RBC", "WBC", "Platelets", "Plasma"], correctAnswer: 2 },
+                { question: "Which organism is known for photosynthesis?", options: ["Fungi", "Bacteria", "Algae", "Protozoa"], correctAnswer: 2 },
+                { question: "Which part of the ear helps in maintaining balance?", options: ["Cochlea", "Eardrum", "Semicircular canals", "Auditory nerve"], correctAnswer: 2 },
+                { question: "Which human organ produces urea?", options: ["Kidney", "Liver", "Stomach", "Intestine"], correctAnswer: 1 },
+                { question: "Which of the following is a communicable disease?", options: ["Cancer", "Diabetes", "Tuberculosis", "Scurvy"], correctAnswer: 2 },
+                { question: "Which vitamin prevents night blindness?", options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"], correctAnswer: 0 }
+            ],
+            history: [
+                { question: "Who was the first President of independent India?", options: ["Jawaharlal Nehru", "B. R. Ambedkar", "Dr. Rajendra Prasad", "Sardar Patel"], correctAnswer: 2 },
+                { question: "Who was the founder of the Maurya Empire?", options: ["Ashoka", "Chandragupta Maurya", "Harsha", "Samudragupta"], correctAnswer: 1 },
+                { question: "In which year did India gain independence?", options: ["1945", "1946", "1947", "1950"], correctAnswer: 2 },
+                { question: "Who wrote the Indian national anthem?", options: ["Bankim Chandra Chatterjee", "Rabindranath Tagore", "Subhash Chandra Bose", "Sarojini Naidu"], correctAnswer: 1 },
+                { question: "Who was the first Mughal emperor?", options: ["Akbar", "Babur", "Humayun", "Aurangzeb"], correctAnswer: 1 },
+                { question: "Which movement did Mahatma Gandhi start in 1942?", options: ["Dandi March", "Non-Cooperation Movement", "Quit India Movement", "Swadeshi Movement"], correctAnswer: 2 },
+                { question: "What is the period of Indus Valley Civilization?", options: ["1000–800 BCE", "1500–500 BCE", "2500–1500 BCE", "3000–2000 BCE"], correctAnswer: 2 },
+                { question: "Who built the Red Fort in Delhi?", options: ["Akbar", "Shah Jahan", "Babur", "Aurangzeb"], correctAnswer: 1 },
+                { question: "When did the Battle of Plassey take place?", options: ["1757", "1761", "1857", "1805"], correctAnswer: 0 },
+                { question: "Who was the leader of the 1857 revolt in Kanpur?", options: ["Mangal Pandey", "Rani Lakshmibai", "Bahadur Shah Zafar", "Nana Sahib"], correctAnswer: 3 },
+                { question: "Where did Buddha attain enlightenment?", options: ["Kushinagar", "Lumbini", "Sarnath", "Bodh Gaya"], correctAnswer: 3 },
+                { question: "Which Viceroy introduced the Doctrine of Lapse?", options: ["Lord Curzon", "Lord Wellesley", "Lord Dalhousie", "Lord Ripon"], correctAnswer: 2 },
+                { question: "Who led the Dandi March?", options: ["Sardar Patel", "Jawaharlal Nehru", "Mahatma Gandhi", "Rajagopalachari"], correctAnswer: 2 },
+                { question: "When did the Jallianwala Bagh massacre occur?", options: ["1917", "1919", "1921", "1925"], correctAnswer: 1 },
+                { question: "Who was known as the Iron Man of India?", options: ["Nehru", "Sardar Patel", "Tilak", "Ambedkar"], correctAnswer: 1 },
+                { question: "Which city was the capital of the Maurya Empire?", options: ["Ujjain", "Patliputra", "Kanchipuram", "Varanasi"], correctAnswer: 1 },
+                { question: "When was the Constitution of India adopted?", options: ["15 August 1947", "26 January 1950", "2 October 1949", "26 November 1949"], correctAnswer: 3 },
+                { question: "Who gave the slogan 'Inquilab Zindabad'?", options: ["Bhagat Singh", "Sukhdev", "Lala Lajpat Rai", "Rajguru"], correctAnswer: 0 },
+                { question: "Who was the last Governor-General of independent India?", options: ["Lord Mountbatten", "C. Rajagopalachari", "Jawaharlal Nehru", "Rajendra Prasad"], correctAnswer: 1 },
+                { question: "Who was the first woman ruler of India?", options: ["Rani Lakshmibai", "Razia Sultana", "Ahilyabai Holkar", "Chand Bibi"], correctAnswer: 1 },
+                { question: "Which ancient text is associated with Chanakya?", options: ["Vedas", "Arthashastra", "Mahabharata", "Upanishads"], correctAnswer: 1 },
+                { question: "Who discovered the sea route to India?", options: ["Christopher Columbus", "Vasco da Gama", "Marco Polo", "Ferdinand Magellan"], correctAnswer: 1 },
+                { question: "What was the capital of the Mughal Empire under Akbar?", options: ["Delhi", "Agra", "Fatehpur Sikri", "Lahore"], correctAnswer: 2 },
+                { question: "Who was the founder of the Sikh religion?", options: ["Guru Gobind Singh", "Guru Angad", "Guru Nanak", "Guru Arjan"], correctAnswer: 2 },
+                { question: "Which war led to the annexation of Punjab by the British?", options: ["First Afghan War", "Second Maratha War", "Anglo-Sikh War", "Third Mysore War"], correctAnswer: 2 },
+                { question: "When did the French Revolution begin?", options: ["1776", "1789", "1804", "1815"], correctAnswer: 1 },
+                { question: "Who was the leader of the Nazi Party in Germany?", options: ["Stalin", "Hitler", "Mussolini", "Churchill"], correctAnswer: 1 },
+                { question: "Which civilization is known for pyramids?", options: ["Mesopotamian", "Greek", "Egyptian", "Roman"], correctAnswer: 2 },
+                { question: "When did World War II end?", options: ["1939", "1942", "1945", "1950"], correctAnswer: 2 },
+                { question: "Who was known as the Napoleon of India?", options: ["Samudragupta", "Ashoka", "Chandragupta Maurya", "Harsha"], correctAnswer: 0 },
+                { question: "Which treaty ended World War I?", options: ["Treaty of Paris", "Treaty of Versailles", "Treaty of Vienna", "Treaty of Berlin"], correctAnswer: 1 },
+                { question: "Who was the Prime Minister of Britain during WWII?", options: ["Neville Chamberlain", "Winston Churchill", "Tony Blair", "Margaret Thatcher"], correctAnswer: 1 },
+                { question: "Who led the Azad Hind Fauj?", options: ["Mahatma Gandhi", "Bhagat Singh", "Subhash Chandra Bose", "Jawaharlal Nehru"], correctAnswer: 2 },
+                { question: "Who founded the Indian National Congress?", options: ["Dadabhai Naoroji", "A.O. Hume", "M.G. Ranade", "Bipin Chandra Pal"], correctAnswer: 1 },
+                { question: "Where was Tipu Sultan's kingdom?", options: ["Delhi", "Hyderabad", "Mysore", "Bengal"], correctAnswer: 2 },
+                { question: "Who built the Qutub Minar?", options: ["Akbar", "Qutub-ud-din Aibak", "Shah Jahan", "Alauddin Khilji"], correctAnswer: 1 },
+                { question: "Which dynasty built the Ajanta caves?", options: ["Maurya", "Gupta", "Satavahana", "Chola"], correctAnswer: 2 },
+                { question: "What was the main occupation of Harappans?", options: ["Hunting", "Fishing", "Agriculture", "Trade"], correctAnswer: 2 },
+                { question: "Who introduced the Permanent Settlement in Bengal?", options: ["Warren Hastings", "Cornwallis", "Dalhousie", "Curzon"], correctAnswer: 1 },
+                { question: "Who introduced railways in India?", options: ["Lord Dalhousie", "Lord Curzon", "Lord Ripon", "Lord Canning"], correctAnswer: 0 },
+                { question: "Where is the Sun Temple of Konark located?", options: ["Odisha", "Bihar", "Karnataka", "Rajasthan"], correctAnswer: 0 },
+                { question: "Which Indian state was annexed under the Doctrine of Lapse?", options: ["Punjab", "Awadh", "Jhansi", "Bengal"], correctAnswer: 2 },
+                { question: "Which Indian movement is also called the Salt Satyagraha?", options: ["Non-Cooperation", "Dandi March", "Quit India", "Khilafat"], correctAnswer: 1 },
+                { question: "When did the Non-Cooperation Movement start?", options: ["1919", "1920", "1922", "1930"], correctAnswer: 1 },
+                { question: "What is the meaning of 'Swaraj'?", options: ["Colonial Rule", "Self-rule", "Economic Development", "Education"], correctAnswer: 1 },
+                { question: "Who founded the Chola Dynasty?", options: ["Rajaraja Chola", "Vijayalaya Chola", "Kulothunga Chola", "Rajaraja II"], correctAnswer: 1 },
+                { question: "Which empire was known for rock-cut temples in Mahabalipuram?", options: ["Maurya", "Gupta", "Chola", "Pallava"], correctAnswer: 3 },
+                { question: "Which king converted to Buddhism after a major war?", options: ["Chandragupta", "Samudragupta", "Ashoka", "Harsha"], correctAnswer: 2 },
+                { question: "Who composed the epic 'Mahabharata'?", options: ["Valmiki", "Vyasa", "Kalidasa", "Tulsidas"], correctAnswer: 1 },
+                { question: "What was the capital of the Gupta Empire?", options: ["Patliputra", "Ujjain", "Kannauj", "Mathura"], correctAnswer: 0 },
+                { question: "Which Indian leader was called 'Lokmanya'?", options: ["Nehru", "Tilak", "Patel", "Bose"], correctAnswer: 1 },
+                { question: "What was the capital of British India before Delhi?", options: ["Madras", "Bombay", "Kolkata", "Patna"], correctAnswer: 2 }
+            ],
+            art: [
+                { question: "Which of the following is a primary color?", options: ["Green", "Orange", "Red", "Purple"], correctAnswer: 2 },
+                { question: "What do we call a painting made with watercolors?", options: ["Acrylic", "Fresco", "Watercolor painting", "Oil painting"], correctAnswer: 2 },
+                { question: "Who painted the Mona Lisa?", options: ["Pablo Picasso", "Leonardo da Vinci", "Vincent van Gogh", "Claude Monet"], correctAnswer: 1 },
+                { question: "What shape is commonly used in Warli art?", options: ["Circles", "Triangles", "Rectangles", "Squares"], correctAnswer: 1 },
+                { question: "Which Indian state is famous for Madhubani art?", options: ["Rajasthan", "Bihar", "Odisha", "Punjab"], correctAnswer: 1 },
+                { question: "What do we call art made by cutting and pasting paper?", options: ["Mosaic", "Origami", "Collage", "Sketching"], correctAnswer: 2 },
+                { question: "Which material is typically used in sculpture?", options: ["Clay", "Oil paint", "Canvas", "Charcoal"], correctAnswer: 0 },
+                { question: "Which famous painting shows a night sky filled with swirling stars?", options: ["The Starry Night", "The Scream", "Sunflowers", "Water Lilies"], correctAnswer: 0 },
+                { question: "Which of these is a warm color?", options: ["Blue", "Green", "Purple", "Orange"], correctAnswer: 3 },
+                { question: "What is the art of folding paper into shapes called?", options: ["Mosaic", "Stencil", "Origami", "Papercut"], correctAnswer: 2 },
+                { question: "What is the use of light and shadow in art called?", options: ["Perspective", "Chiaroscuro", "Symmetry", "Texture"], correctAnswer: 1 },
+                { question: "What tool do painters use to mix colors?", options: ["Brush", "Palette", "Easel", "Sponge"], correctAnswer: 1 },
+                { question: "What is the base on which a painting is made called?", options: ["Palette", "Canvas", "Frame", "Sketch"], correctAnswer: 1 },
+                { question: "Which of these is a famous Indian painter?", options: ["Leonardo da Vinci", "Raja Ravi Varma", "Michelangelo", "Rembrandt"], correctAnswer: 1 },
+                { question: "Which art form involves decorating hands with henna?", options: ["Tanjore", "Fresco", "Madhubani", "Mehndi"], correctAnswer: 3 },
+                { question: "What color do you get when you mix red and blue?", options: ["Green", "Purple", "Orange", "Brown"], correctAnswer: 1 },
+                { question: "What is a mural?", options: ["A sketchbook", "A small canvas painting", "A painting on a wall", "A 3D model"], correctAnswer: 2 },
+                { question: "Which of these is a folk dance as well as an art form from Gujarat?", options: ["Bharatanatyam", "Kathak", "Garba", "Odissi"], correctAnswer: 2 },
+                { question: "Which of these is a famous cave painting site in India?", options: ["Konark", "Ajanta", "Hampi", "Ellora"], correctAnswer: 1 },
+                { question: "What do you call a black and white drawing made with pencil?", options: ["Oil painting", "Watercolor", "Sketch", "Mosaic"], correctAnswer: 2 },
+                { question: "Which is NOT a primary color?", options: ["Red", "Blue", "Green", "Yellow"], correctAnswer: 2 },
+                { question: "Which of these tools is used for sculpting?", options: ["Brush", "Chisel", "Palette", "Roller"], correctAnswer: 1 },
+                { question: "Which of these artists is known for abstract art?", options: ["MF Husain", "Amrita Sher-Gil", "Pablo Picasso", "Raja Ravi Varma"], correctAnswer: 2 },
+                { question: "What is tie and dye known as in India?", options: ["Block print", "Bandhani", "Ikat", "Appliqué"], correctAnswer: 1 },
+                { question: "Which element is important for balance in a painting?", options: ["Contrast", "Texture", "Symmetry", "Color"], correctAnswer: 2 },
+                { question: "What do you call a repeated design in art?", options: ["Form", "Pattern", "Line", "Color"], correctAnswer: 1 },
+                { question: "Which color do you get by mixing yellow and red?", options: ["Brown", "Orange", "Green", "Purple"], correctAnswer: 1 },
+                { question: "What kind of lines show movement?", options: ["Straight", "Curved", "Zigzag", "Dotted"], correctAnswer: 1 },
+                { question: "Which Indian art form uses bright colors and themes from Hindu mythology?", options: ["Tanjore Painting", "Modern Art", "Charcoal Sketching", "Stencil"], correctAnswer: 0 },
+                { question: "What is the art of making pots called?", options: ["Carving", "Pottery", "Etching", "Embroidery"], correctAnswer: 1 },
+                { question: "What is perspective in art?", options: ["Use of texture", "Creating 3D effect", "Adding color", "Blending lines"], correctAnswer: 1 },
+                { question: "What do you call a drawing of a person's face?", options: ["Figure", "Portrait", "Scene", "Sketch"], correctAnswer: 1 },
+                { question: "Which medium is used in oil painting?", options: ["Water", "Oil", "Acrylic", "Charcoal"], correctAnswer: 1 },
+                { question: "Which artist is famous for paintings of horses in Indian modern art?", options: ["S. H. Raza", "MF Husain", "Rabindranath Tagore", "Jatin Das"], correctAnswer: 1 },
+                { question: "Which festival is known for colorful rangoli art?", options: ["Holi", "Diwali", "Eid", "Pongal"], correctAnswer: 1 },
+                { question: "Which brush stroke technique gives texture?", options: ["Smooth stroke", "Dry brush", "Flat stroke", "Blended stroke"], correctAnswer: 1 },
+                { question: "What is the opposite of warm colors?", options: ["Neutral colors", "Bold colors", "Cool colors", "Dark colors"], correctAnswer: 2 },
+                { question: "Which art is made by joining small colored pieces?", options: ["Mosaic", "Sketch", "Tapestry", "Embossing"], correctAnswer: 0 },
+                { question: "Which Indian art form uses dots and lines to create designs?", options: ["Warli", "Pattachitra", "Tanjore", "Miniature"], correctAnswer: 0 },
+                { question: "What is charcoal used for in art?", options: ["Coloring", "Outlining", "Sculpting", "Texturing"], correctAnswer: 1 },
+                { question: "Which of these is an element of design?", options: ["Music", "Shape", "Dance", "Rhythm"], correctAnswer: 1 },
+                { question: "Which is a traditional painting style of Odisha?", options: ["Madhubani", "Warli", "Pattachitra", "Kalamkari"], correctAnswer: 2 },
+                { question: "Which famous artist cut off part of his ear?", options: ["Picasso", "Michelangelo", "Van Gogh", "Renoir"], correctAnswer: 2 },
+                { question: "What surface is most commonly used for oil painting?", options: ["Paper", "Wood", "Canvas", "Plastic"], correctAnswer: 2 },
+                { question: "Which element creates depth in a painting?", options: ["Color", "Line", "Value", "Form"], correctAnswer: 2 },
+                { question: "What are traditional Indian puppets made from?", options: ["Plastic", "Paper", "Wood and cloth", "Clay"], correctAnswer: 2 },
+                { question: "What do we call the study of beauty in art?", options: ["Geometry", "Perspective", "Aesthetics", "Theory"], correctAnswer: 2 },
+                { question: "Which Indian art form is painted on palm leaves?", options: ["Madhubani", "Pattachitra", "Tanjore", "Warli"], correctAnswer: 1 },
+                { question: "What is the art of decorating fabric with needlework?", options: ["Tapestry", "Embroidery", "Patchwork", "Quilting"], correctAnswer: 1 },
+                { question: "Which drawing shows the outlines of objects?", options: ["Contour drawing", "Gesture drawing", "Shading", "Sketching"], correctAnswer: 0 },
+                { question: "Which of these is NOT an art medium?", options: ["Pencil", "Charcoal", "Marble", "Microscope"], correctAnswer: 3 },
+                { question: "Which art movement focused on realistic depictions?", options: ["Abstract", "Impressionism", "Cubism", "Realism"], correctAnswer: 3 },
+                { question: "What do we call a person who draws cartoons professionally?", options: ["Painter", "Illustrator", "Cartoonist", "Designer"], correctAnswer: 2 }
+            ]
+        };
+
+        function startQuiz() {
+            const category = document.getElementById('category').value;
+            const numQuestions = parseInt(document.getElementById('num-questions').value, 10);
+            if (!category || isNaN(numQuestions) || numQuestions < 1 || numQuestions > 50) return;
+
+            // Randomly select numQuestions from the chosen subject
+            const allQuestions = questionBank[category];
+            const shuffled = allQuestions.slice().sort(() => 0.5 - Math.random());
+            questions = shuffled.slice(0, numQuestions);
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestion = 0;
+            
+            document.getElementById('quiz-form').style.display = 'none';
+            document.getElementById('quiz-content').style.display = 'block';
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question-text').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (userAnswers[currentQuestion] === index) {
+                    optionElement.classList.add('selected');
+                }
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+
+            updateNavigationButtons();
+        }
+
+        function selectOption(optionIndex) {
+            userAnswers[currentQuestion] = optionIndex;
+            displayQuestion();
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevButton = document.querySelector('button[onclick="previousQuestion()"]');
+            const nextButton = document.querySelector('button[onclick="nextQuestion()"]');
+            
+            prevButton.disabled = currentQuestion === 0;
+            nextButton.disabled = currentQuestion === questions.length - 1;
+        }
+
+        function submitQuiz() {
+            score = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === questions[index].correctAnswer) {
+                    score++;
+                }
+            });
+            
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.textContent = `Your score: ${score} out of ${questions.length}`;
+            showQuizReview();
+        }
+
+        function showQuizReview() {
+            const quizContent = document.getElementById('quiz-content');
+            const questionContainer = document.getElementById('question-container');
+            questionContainer.innerHTML = '';
+            questions.forEach((q, qIdx) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'question-container';
+                const qTitle = document.createElement('h3');
+                qTitle.textContent = `Q${qIdx + 1}: ${q.question}`;
+                qDiv.appendChild(qTitle);
+                const optsDiv = document.createElement('div');
+                optsDiv.className = 'options';
+                q.options.forEach((opt, oIdx) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'option';
+                    optDiv.textContent = opt;
+                    if (userAnswers[qIdx] === oIdx) {
+                        if (oIdx === q.correctAnswer) {
+                            optDiv.classList.add('correct');
+                        } else {
+                            optDiv.classList.add('wrong');
+                        }
+                    }
+                    if (oIdx === q.correctAnswer && userAnswers[qIdx] !== q.correctAnswer) {
+                        optDiv.classList.add('correct');
+                        optDiv.style.border = '2px solid #388e3c';
+                    }
+                    optsDiv.appendChild(optDiv);
+                });
+                qDiv.appendChild(optsDiv);
+                questionContainer.appendChild(qDiv);
+            });
+            // Hide navigation buttons after submission
+            document.querySelector('.quiz-controls').style.display = 'none';
+        }
+    </script>
+</body>
+</html> 

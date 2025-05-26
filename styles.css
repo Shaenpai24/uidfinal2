@@ -1,0 +1,694 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.Hello {
+  font-family: 'Fredoka', Arial, sans-serif;
+  font-size: 93px;
+  text-align: center;
+}
+.Hello > div {
+  font-family: inherit;
+}
+.custom-cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: rgb(255, 140, 0);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  box-shadow: 0 0 8px white;
+  transition: transform 0.1s ease;
+}
+.doodles{
+  position: absolute;
+  left:300px;
+  top:150px;
+}
+body {
+  z-index: 3;
+  color: #000000;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  cursor:none;
+}
+
+header {
+  background: #181820;
+  padding: 20px;
+  color: rgb(255, 255, 255);
+  display: flex;
+  align-items: center;
+  height:140px;
+  gap: 15px;
+   cursor:none;
+}
+
+.logo {
+  height: 70px;
+  width: 70px;
+  margin-left: 42px;
+  margin-right: 42px;
+   cursor:none;
+}
+
+.htitle {
+  font-size: 38px;
+   cursor:none;
+  
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  position: relative;
+   cursor:none;
+}
+
+.sidebar {
+  background-color: #181820;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: stretch;
+  height: 140px;
+   cursor:none;
+  
+}
+.sidebar a{
+  text-decoration: none;
+   cursor:none;
+ 
+
+}
+.sidebar button {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  cursor: pointer;
+  height: 130px; /* Will now work! */
+  width: 200px;
+  max-width: 200px;
+  border-right: 1px solid #0B192C;
+ cursor:none;
+  border-radius: 0;
+  margin: 0;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.sidebar button.active ,.sidebar button:hover {
+    background-color: #303042;
+    color: #fff;
+    border-bottom: 4px solid #000000;
+    transform: scale(1.05);
+     cursor:none;
+  }
+
+
+.main-content {
+  flex: 1;
+  padding: 40px;
+  top:200px;
+   cursor:none;
+}
+.reminder{
+  position: absolute;
+  padding: 40px;
+  left:980px;
+   cursor:none;
+  
+}
+
+.reminder-tag {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  padding: 6px 14px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: inline-block;
+   cursor:none;
+  
+}
+
+.reminder-box {
+  background-color: #1b1b1b;
+  border: 3px solid #000000;
+  border-radius: 18px;
+  width: 300px;
+  height: 350px;
+  color: rgb(255, 255, 255);
+   cursor:none;
+}
+
+.reminder-box-header {
+  background-color: #ffffff;
+  color:black;
+  padding: 12px;
+  border-top-right-radius:18px;
+  border-top-left-radius:18px;
+  border-bottom: 2px solid #000000;
+   cursor:none;
+}
+
+/* Login Container */
+.login-container {
+  background: #1E3E62;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  width: 450px;
+  margin: 40px auto 0 auto;
+  position: absolute;
+  left: 535px;
+  top:69px;
+
+}
+
+.login-container h2 {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
+   cursor:none;
+}
+
+.login-container #authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+   cursor:none;
+}
+
+.login-container input {
+  padding: 15px;
+  border: 2px solid #1E3E62;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: #fff;
+  color: #000;
+   cursor:none;
+}
+
+.login-container input:focus {
+  outline: none;
+  border-color: #FF6500;
+  background: #f3f3f3;
+  box-shadow: 0 0 0 3px rgba(255, 101, 0, 0.1);
+}
+
+.login-container button {
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+.login-container button[onclick="signUp()"] {
+  background: #FF6500;
+}
+
+.login-container button[onclick="logIn()"] {
+  background: #1E3E62;
+  border: 2px solid #FF6500;
+}
+
+.login-container button[onclick="signInWithGoogle()"] {
+  background: #4285F4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.login-container button[onclick="signInAnonymously()"] {
+  background: #000000;
+}
+
+.login-container button:hover {
+  background: #FF6500;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 101, 0, 0.15);
+}
+
+.login-container button:active {
+  transform: translateY(0);
+}
+
+.login-container #error-message {
+  color: #FF6500;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  min-height: 20px;
+}
+
+/* Flash Card Form */
+.form-container {
+  margin-left: 30px;
+  margin-bottom: 20px;
+  width: 300px;
+  top:200px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+   cursor:none;
+}
+
+.form-container input {
+  padding: 10px;
+  border: 1px solid #999;
+  border-radius: 5px;
+   cursor:none;
+}
+
+.form-container button {
+  background-color: #181812;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+   cursor:none;
+}
+
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px 30px;
+   cursor:none;
+}
+
+.card {
+  width: 200px;
+  height: 120px;
+  perspective: 1000px;
+   cursor:none;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+   cursor:none;
+}
+
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+   cursor:none;
+}
+
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background-color: #181812;
+  border: 2px solid #4c5764;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-front {
+  z-index: 2;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+.card button {
+  background-color: #6d28a8;
+  color: white;
+  border: none;
+  padding: 6px;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+footer {
+  width: 100%;
+  background: #181818;
+  color: #fff;
+  text-align: center;
+  padding: 18px 0 18px 0;
+  font-size: 1.1rem;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  cursor:none;
+  letter-spacing: 1px;
+}
+
+/* Calendar Styles */
+.calendar-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  margin: 40px auto;
+  max-width: 1200px;
+  width: 90vw;
+  cursor:none;
+}
+
+.calendar-container {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(80, 0, 120, 0.12);
+  padding: 40px 50px 50px 50px;
+  min-width: 600px;
+  min-height: 520px;
+  width: 700px;
+  margin: 0 auto;
+  cursor: none;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+   cursor:none;
+}
+
+#monthYear {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.calendar-grid {
+  width: 100%;
+   cursor:none;
+}
+
+.custom-cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: rgb(255, 140, 0);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  box-shadow: 0 0 8px white;
+  transition: transform 0.1s ease;
+   cursor:none;
+}
+.weekdays, .days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  width: 100%;
+  cursor: none;
+}
+
+.weekdays div {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.3rem;
+  padding: 12px 0 12px 0;
+  color: #444;
+  border-bottom: 2px solid #e0b3ff;
+   cursor:none;
+}
+
+.days {
+  min-height: 320px;
+  cursor:none;
+}
+
+.day {
+  text-align: center;
+  font-size: 1.25rem;
+  padding: 18px 0;
+  cursor: pointer;
+  border-radius: 50%;
+  margin: 4px auto;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  cursor:none;
+}
+
+.day.today {
+  background: #181818;
+  color: #fff;
+  font-weight: bold;
+  cursor:none;
+}
+
+.day.has-reminder::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  margin-top: 3px;
+  width: 8px;
+  height: 8px;
+  background: #ffb300;
+  border-radius: 50%;
+}
+
+.day.other-month {
+  color: #ccc;
+  background: none;
+  pointer-events: none;
+  cursor:none;
+}
+
+/* Reminder Sidebar */
+.reminder-sidebar {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  flex: 1;
+  max-width: 300px;
+}
+
+.reminder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-reminder-btn {
+  background: #6a11cb;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-reminder-btn:hover {
+  background: #2575fc;
+  transform: translateY(-2px);
+}
+
+.reminders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reminder-item {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #6a11cb;
+}
+
+.reminder-item h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.reminder-item p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.reminder-item .time {
+  color: #2575fc;
+  font-weight: 500;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 15px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #6a11cb;
+}
+
+.submit-btn {
+  background: #6a11cb;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: #2575fc;
+  transform: translateY(-2px);
+}
+
+/* Responsive Styles */
+@media (max-width: 900px) {
+  .calendar-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .calendar-container {
+    min-width: unset;
+    width: 100%;
+    padding: 20px 5px 30px 5px;
+  }
+}
+
+
+ 
+
+.hello-languages > div {
+  margin: 16px 0;
+}
+.bg-blob {
+  position: absolute;
+  z-index: 90; /* Behind all main content */
+  opacity: 0.1;
+  border-radius: 50%;
+  filter: blur(60px);
+}
+
+.blob1 {
+  width: 300px;
+  height: 300px;
+  background: #7e57c2;
+  top: 100px;
+  left: 250px;
+}
+
+.blob2 {
+  width: 200px;
+  height: 200px;
+  background: #ab47bc;
+  bottom: 150px;
+  right: 200px;
+}
+.nav-button {
+  background: #181820;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(30,62,98,0.08);
+  cursor:none;
+}
+
+.nav-button:hover, .nav-button:focus {
+  background: #FF6500;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(255,101,0,0.12);
+}
+
+.nav-button:active {
+  background: #0B192C;
+  color: #fff;
+}
